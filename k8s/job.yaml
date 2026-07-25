@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: playwright-job
+
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 600
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+      - name: playwright
+        image: mcr.microsoft.com/playwright:v1.61.1-jammy
+        imagePullPolicy: IfNotPresent
+
+        command:
+        - sh
+        - -c
+        - |
+          echo "Playwright Job Started"
+          ls -la /artifacts
+          echo "Artifacts directory mounted successfully"
+
+        volumeMounts:
+        - name: playwright-artifacts
+          mountPath: /artifacts
+
+      volumes:
+      - name: playwright-artifacts
+        persistentVolumeClaim:
+          claimName: playwright-results-pvc
